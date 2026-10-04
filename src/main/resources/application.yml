@@ -50,6 +50,10 @@ app:
     # o como puente mientras se integra un IdP externo (ej. AWS Cognito).
     api-key: ${API_KEY:}
 
+#url dominion del frontend para permitir CORS
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
 logging:
   level:
     com.bubblesessence: DEBUG

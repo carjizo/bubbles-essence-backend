@@ -3,6 +3,8 @@ package com.bubblesessence.common.config;
 import com.bubblesessence.seguridad.auth.ApiKeyAuthenticationFilter;
 import com.bubblesessence.seguridad.auth.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -40,6 +42,11 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ApiKeyAuthenticationFilter apiKeyAuthenticationFilter;
+
+    // Leer la variable CORS_ALLOWED_ORIGINS del entorno del application.yml
+    @Value("${cors.allowed-origins}")
+    private String corsAllowedOrigins;
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -84,10 +91,9 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        // TODO: cuando tengas el dominio del front en producción, reemplaza
         // el "*" por la URL exacta (ej. https://bubblesessence.pe).
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedOriginPatterns(List.of(corsAllowedOrigins));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
