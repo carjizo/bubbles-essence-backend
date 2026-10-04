@@ -18,6 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -91,9 +92,12 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        // el "*" por la URL exacta (ej. https://bubblesessence.pe).
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(corsAllowedOrigins));
+        config.setAllowedOriginPatterns(
+                Arrays.stream(corsAllowedOrigins.split(","))
+                        .map(String::trim)
+                        .toList()
+        );
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

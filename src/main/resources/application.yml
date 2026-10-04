@@ -50,7 +50,8 @@ app:
     # o como puente mientras se integra un IdP externo (ej. AWS Cognito).
     api-key: ${API_KEY:}
 
-#url dominion del frontend para permitir CORS
+# URL(s) del frontend permitidas para CORS, separadas por coma si son varias.
+# En Render se sobreescribe con la variable de entorno CORS_ALLOWED_ORIGINS.
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
 
