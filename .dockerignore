@@ -1,0 +1,16 @@
+build/
+.gradle/
+*.class
+*.log
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+.git/
+.gitignore
+HELP.md
+README.md
+postman/
+.DS_Store

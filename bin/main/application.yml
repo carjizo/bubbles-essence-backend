@@ -1,0 +1,56 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: bubbles-essence
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      # La base de datos ya existe (creada con el script SQL a mano) y usa
+      # DOMINIOS personalizados en casi toda columna (tddu_activo, tddu_monto,
+      # tddu_nombre, tddu_estado...). En "validate", Hibernate compara el tipo
+      # crudo que reporta el JDBC metadata contra el tipo Java esperado, y para
+      # una columna de dominio reporta el nombre del dominio (DISTINCT type),
+      # no el tipo base -> siempre marcaría "mismatch" aunque el mapeo esté
+      # bien. Por eso queda en "none": Hibernate no toca ni inspecciona el
+      # esquema; la corrección del mapeo la garantizan los @Column explícitos
+      # de cada entidad (y, si quieres una red de seguridad real, un test de
+      # integración que levante el contexto contra la BD). Nada de
+      # Flyway/Liquibase por ahora.
+      ddl-auto: none
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+app:
+  jwt:
+    # En prod, sobrescribe JWT_SECRET con una clave larga y aleatoria (env var).
+    # Este default es SOLO para que el proyecto arranque en local sin configurar nada.
+    secret: ${JWT_SECRET:bubbles-essence-clave-secreta-local-cambiar-en-produccion-32bytes+}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:480}
+  security:
+    # Vacío = deshabilitado. Si lo configuras (env var API_KEY), cualquier
+    # request con header "X-API-KEY: <ese valor>" queda autenticada como
+    # ROLE_SYSTEM, sin pasar por JWT. Pensado para llamadas máquina-a-máquina
+    # o como puente mientras se integra un IdP externo (ej. AWS Cognito).
+    api-key: ${API_KEY:}
+
+logging:
+  level:
+    com.bubblesessence: DEBUG
+    org.hibernate.SQL: DEBUG

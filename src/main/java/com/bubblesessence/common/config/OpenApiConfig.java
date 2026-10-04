@@ -1,0 +1,18 @@
+package com.bubblesessence.common.config;
+
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class OpenApiConfig {
+
+    @Bean
+    public OpenAPI bubblesEssenceOpenAPI() {
+        return new OpenAPI().info(new Info()
+                .title("Bubbles & Essence API")
+                .description("API REST para el negocio de jabones artesanales de glicerina")
+                .version("1.0.0"));
+    }
+}
