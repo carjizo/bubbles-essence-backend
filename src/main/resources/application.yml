@@ -10,6 +10,19 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      # Render free = 1 sola instancia corriendo -> un solo pool a la vez.
+      # Supabase free (conexión directa) permite ~60 conexiones totales,
+      # así que 5 deja margen de sobra sin acaparar el límite.
+      maximum-pool-size: 5
+      minimum-idle: 1
+      # Libera conexiones que llevan 5 min sin usarse, en vez de
+      # mantenerlas abiertas indefinidamente.
+      idle-timeout: 300000
+      # Recicla cada conexión cada 20 min como máximo (evita conexiones
+      # "colgadas" que Supabase a veces corta por su lado sin avisar).
+      max-lifetime: 1200000
+      connection-timeout: 20000
 
   jpa:
     open-in-view: false
