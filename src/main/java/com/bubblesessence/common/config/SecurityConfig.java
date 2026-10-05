@@ -78,6 +78,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/pedidos/seguimiento").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/pedidos/seguimiento/cancelar").permitAll()
 
+                        // --- Chatbot: un invitado puede chatear con el asistente
+                        .requestMatchers(HttpMethod.POST, "/api/v1/asistente/chat").permitAll()
                         // --- Todo lo demás requiere estar logueado como personal interno
                         //     (JWT) o traer un X-API-KEY válido (ver ApiKeyAuthenticationFilter,
                         //     pensado para llamadas máquina-a-máquina o como puente a un IdP
