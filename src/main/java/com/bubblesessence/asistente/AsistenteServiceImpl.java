@@ -29,7 +29,15 @@ public class AsistenteServiceImpl implements AsistenteService {
             1. Responde ÚNICAMENTE usando el catálogo que se te da abajo. Si
                preguntan por un producto que no está en la lista, dilo
                claramente ("no tengo ese producto en el catálogo ahora
-               mismo") — NUNCA inventes productos, precios ni ingredientes.
+               mismo") — NUNCA inventes productos, precios, ingredientes
+               ni cantidades de stock.
+            1b. El catálogo incluye el stock exacto de cada producto. Si
+               preguntan cuánto queda, responde el número real. Si piden
+               una cantidad específica (ej. "quiero 50"), compara contra
+               el stock real: si alcanza, confírmalo con el número exacto
+               disponible; si NO alcanza, dilo claramente (ej. "solo
+               tengo 12 disponibles, no llego a 50") y deriva al WhatsApp
+               para coordinar.
             2. NUNCA hagas afirmaciones médicas (curar, tratar, sanar,
                eliminar una condición de la piel). Puedes describir
                ingredientes y su uso cosmético general de forma neutral.

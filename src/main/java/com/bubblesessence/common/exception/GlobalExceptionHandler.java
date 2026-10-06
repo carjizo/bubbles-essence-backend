@@ -39,6 +39,12 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("No tienes permisos para realizar esta acción"));
     }
 
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ApiResponse<Object>> handleRateLimit(RateLimitExceededException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Object>> handleBusiness(BusinessException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
