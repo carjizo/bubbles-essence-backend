@@ -24,6 +24,8 @@ public class PedidoResponseDTO {
     private Long clienteId;
     private String invitadoNombre;
     private String invitadoTelefono;
+    private String invitadoDocumento;
+    private String invitadoCorreo;
     private TipoEntrega tipoEntrega;
     private String direccionEntrega;
     private EstadoPedido estadoPedido;

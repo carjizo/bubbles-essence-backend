@@ -14,6 +14,8 @@ public class PedidoMapper {
                 .clienteId(pedido.getCliente() != null ? pedido.getCliente().getId() : null)
                 .invitadoNombre(pedido.getInvitadoNombre())
                 .invitadoTelefono(pedido.getInvitadoTelefono())
+                .invitadoDocumento(pedido.getInvitadoDocumento())
+                .invitadoCorreo(pedido.getInvitadoCorreo())
                 .tipoEntrega(pedido.getTipoEntrega())
                 .direccionEntrega(pedido.getDireccionEntrega())
                 .estadoPedido(pedido.getEstadoPedido())

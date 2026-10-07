@@ -60,6 +60,8 @@ public class PedidoServiceImpl implements PedidoService {
                 .cliente(cliente)
                 .invitadoNombre(request.getInvitadoNombre())
                 .invitadoTelefono(request.getInvitadoTelefono())
+                .invitadoDocumento(request.getInvitadoDocumento())
+                .invitadoCorreo(request.getInvitadoCorreo())
                 .tipoEntrega(request.getTipoEntrega())
                 .direccionEntrega(request.getDireccionEntrega())
                 .vendedor(vendedor)
@@ -74,13 +76,13 @@ public class PedidoServiceImpl implements PedidoService {
             if (!Boolean.TRUE.equals(producto.getActivo())) {
                 throw new BusinessException("El producto '%s' no está disponible".formatted(producto.getNombre()));
             }
-            
+
             // Validar stock disponible
             if (producto.getStock() == null || producto.getStock() < item.getCantidad()) {
                 int disponible = producto.getStock() != null ? producto.getStock() : 0;
                 throw new BusinessException(
-                    "Stock insuficiente de '%s'. Disponible: %d, Solicitado: %d"
-                        .formatted(producto.getNombre(), disponible, item.getCantidad())
+                        "Stock insuficiente de '%s'. Disponible: %d, Solicitado: %d"
+                                .formatted(producto.getNombre(), disponible, item.getCantidad())
                 );
             }
 
@@ -105,16 +107,10 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
-//    public List<PedidoResponseDTO> listar(EstadoPedido estado) {
-//        List<Pedido> pedidos = estado != null
-//                ? pedidoRepository.findAll().stream().filter(p -> p.getEstadoPedido() == estado).toList()
-//                : pedidoRepository.findAll();
-//        return pedidos.stream().map(pedidoMapper::toResponseDTO).toList();
-//    }
     public List<PedidoResponseDTO> listar(EstadoPedido estado) {
         List<Pedido> pedidos = estado != null
-                ? pedidoRepository.findTop50ByEstadoPedidoOrderByFechaPedidoDesc(estado)
-                : pedidoRepository.findTop50ByOrderByFechaPedidoDesc();
+                ? pedidoRepository.findAll().stream().filter(p -> p.getEstadoPedido() == estado).toList()
+                : pedidoRepository.findAll();
         return pedidos.stream().map(pedidoMapper::toResponseDTO).toList();
     }
 
@@ -189,7 +185,7 @@ public class PedidoServiceImpl implements PedidoService {
 
         if (!transicionValida) {
             throw new BusinessException(
-                "Transición no permitida: " + actual + " → " + nuevo
+                    "Transición no permitida: " + actual + " → " + nuevo
             );
         }
     }
@@ -223,16 +219,16 @@ public class PedidoServiceImpl implements PedidoService {
         // Validar estado
         if (pedido.getEstadoPedido() != EstadoPedido.PENDING_PAYMENT) {
             throw new BusinessException(
-                "No se puede confirmar pago de un pedido en estado " + pedido.getEstadoPedido()
-                + ". Solo se puede confirmar desde PENDING_PAYMENT"
+                    "No se puede confirmar pago de un pedido en estado " + pedido.getEstadoPedido()
+                            + ". Solo se puede confirmar desde PENDING_PAYMENT"
             );
         }
 
         // Validar monto verificado coincida con total
         if (request.getMontoVerificado().compareTo(pedido.getMontoTotal()) != 0) {
             throw new BusinessException(
-                "Monto verificado no coincide. Esperado: " + pedido.getMontoTotal()
-                + ", Verificado: " + request.getMontoVerificado()
+                    "Monto verificado no coincide. Esperado: " + pedido.getMontoTotal()
+                            + ", Verificado: " + request.getMontoVerificado()
             );
         }
 
@@ -245,8 +241,8 @@ public class PedidoServiceImpl implements PedidoService {
             Producto producto = detalle.getProducto();
             if (producto.getStock() < detalle.getCantidad()) {
                 throw new BusinessException(
-                    "Stock insuficiente de '%s' para confirmar pago. Disponible: %d, Necesario: %d"
-                        .formatted(producto.getNombre(), producto.getStock(), detalle.getCantidad())
+                        "Stock insuficiente de '%s' para confirmar pago. Disponible: %d, Necesario: %d"
+                                .formatted(producto.getNombre(), producto.getStock(), detalle.getCantidad())
                 );
             }
             // Consumir stock
@@ -279,7 +275,7 @@ public class PedidoServiceImpl implements PedidoService {
         // Validar estado
         if (pedido.getEstadoPedido() != EstadoPedido.PENDING_PAYMENT) {
             throw new BusinessException(
-                "No se puede rechazar pago de un pedido en estado " + pedido.getEstadoPedido()
+                    "No se puede rechazar pago de un pedido en estado " + pedido.getEstadoPedido()
             );
         }
 
@@ -309,14 +305,14 @@ public class PedidoServiceImpl implements PedidoService {
         // Validación adicional: si está en PREPARING, solo admin puede cancelar
         if (pedido.getEstadoPedido() == EstadoPedido.PREPARING && canceladoPor != CanceladoPor.ADMIN) {
             throw new BusinessException(
-                "Los pedidos en preparación solo pueden ser cancelados por ADMIN"
+                    "Los pedidos en preparación solo pueden ser cancelados por ADMIN"
             );
         }
 
         // Si el estado es PAID o PREPARING, se debe liberar stock
-        if ((pedido.getEstadoPedido() == EstadoPedido.PAID || 
-             pedido.getEstadoPedido() == EstadoPedido.PREPARING) &&
-            !Boolean.TRUE.equals(pedido.getStockReservado())) {
+        if ((pedido.getEstadoPedido() == EstadoPedido.PAID ||
+                pedido.getEstadoPedido() == EstadoPedido.PREPARING) &&
+                !Boolean.TRUE.equals(pedido.getStockReservado())) {
             // Stock ya fue consumido, necesita ser liberado
             for (PedidoDetalle detalle : pedido.getDetalles()) {
                 Producto producto = detalle.getProducto();
@@ -360,7 +356,7 @@ public class PedidoServiceImpl implements PedidoService {
         try {
             // Obtener el siguiente valor de la secuencia PostgreSQL
             Number secuenciaValue = (Number) entityManager.createNativeQuery(
-                    "SELECT nextval('grp_ven.seq_pedido_codigo')")
+                            "SELECT nextval('grp_ven.seq_pedido_codigo')")
                     .getSingleResult();
             Long numeroSecuencial = secuenciaValue.longValue();
             return "PED-" + Year.now().getValue() + "-" + String.format("%06d", numeroSecuencial);

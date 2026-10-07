@@ -30,6 +30,16 @@ public class PedidoRequestDTO {
 
     private String invitadoTelefono;
 
+    /**
+     * DNI/documento del invitado. Obligatorio en la práctica (ver
+     * isClienteOInvitadoValido) porque es la "llave" junto al código de
+     * pedido para el seguimiento público sin login — sin esto, un pedido
+     * de invitado queda sin forma de verificar quién pregunta por él.
+     */
+    private String invitadoDocumento;
+
+    private String invitadoCorreo;
+
     @NotNull(message = "El tipo de entrega es obligatorio")
     private TipoEntrega tipoEntrega;
 
@@ -39,11 +49,12 @@ public class PedidoRequestDTO {
     @Valid
     private List<PedidoItemRequestDTO> items;
 
-    @AssertTrue(message = "Debes enviar clienteId (cliente con cuenta) o invitadoNombre + invitadoTelefono")
+    @AssertTrue(message = "Debes enviar clienteId (cliente con cuenta) o invitadoNombre + invitadoTelefono + invitadoDocumento")
     public boolean isClienteOInvitadoValido() {
         boolean tieneCliente = clienteId != null;
         boolean tieneInvitado = invitadoNombre != null && !invitadoNombre.isBlank()
-                && invitadoTelefono != null && !invitadoTelefono.isBlank();
+                && invitadoTelefono != null && !invitadoTelefono.isBlank()
+                && invitadoDocumento != null && !invitadoDocumento.isBlank();
         return tieneCliente ^ tieneInvitado; // exactamente uno de los dos, nunca ambos ni ninguno
     }
 
