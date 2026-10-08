@@ -2,9 +2,13 @@ package com.bubblesessence.ventas.producto;
 
 import com.bubblesessence.common.exception.BusinessException;
 import com.bubblesessence.common.exception.ResourceNotFoundException;
+import com.bubblesessence.ventas.producto.dto.ProductoFiltroDTO;
 import com.bubblesessence.ventas.producto.dto.ProductoRequestDTO;
 import com.bubblesessence.ventas.producto.dto.ProductoResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +22,38 @@ public class ProductoServiceImpl implements ProductoService {
     private final ProductoRepository productoRepository;
     private final ProductoMapper productoMapper;
 
+    /** Tope de filas que se trae en una sola consulta; el front pagina
+     *  esas filas localmente (ver conversación sobre el patrón de
+     *  paginación simple), no se manda page/size desde el cliente. */
+    private static final int LIMITE_FILAS = 50;
+
+    /** Por debajo de esto, la búsqueda por ingrediente se ignora en vez
+     *  de filtrar -> evita un LIKE demasiado amplio, con muchos falsos positivos,
+     *  y protege de scans caros con 1-2 caracteres. El front ya solo
+     *  dispara la búsqueda con 3+, esto es la misma regla reforzada acá. */
+    private static final int MIN_CARACTERES_BUSQUEDA = 3;
+
     @Override
-    public List<ProductoResponseDTO> listar(Boolean activo) {
-        List<Producto> productos = (activo != null)
-                ? productoRepository.findByActivo(activo)
-                : productoRepository.findAll();
-        return productos.stream().map(productoMapper::toResponseDTO).toList();
+    public List<ProductoResponseDTO> listar(ProductoFiltroDTO filtro) {
+        String ingrediente = filtro.ingrediente();
+        String terminoValido = (ingrediente != null && ingrediente.trim().length() >= MIN_CARACTERES_BUSQUEDA)
+                ? ingrediente
+                : null;
+
+        Specification<Producto> filtros = Specification
+                .where(ProductoSpecifications.activoEs(filtro.activo()))
+                .and(ProductoSpecifications.creadoDesde(filtro.fechaDesde()))
+                .and(ProductoSpecifications.creadoHasta(filtro.fechaHasta()))
+                .and(ProductoSpecifications.codigoContiene(filtro.codigo()))
+                .and(ProductoSpecifications.nombreContiene(filtro.nombre()))
+                .and(ProductoSpecifications.contieneIngrediente(terminoValido));
+
+        PageRequest limiteOrdenado = PageRequest.of(0, LIMITE_FILAS, Sort.by(Sort.Direction.DESC, "fechaCreacion"));
+
+        return productoRepository.findAll(filtros, limiteOrdenado)
+                .stream()
+                .map(productoMapper::toResponseDTO)
+                .toList();
     }
 
     @Override
