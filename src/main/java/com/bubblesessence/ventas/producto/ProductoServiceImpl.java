@@ -46,6 +46,9 @@ public class ProductoServiceImpl implements ProductoService {
                 .and(ProductoSpecifications.creadoHasta(filtro.fechaHasta()))
                 .and(ProductoSpecifications.codigoContiene(filtro.codigo()))
                 .and(ProductoSpecifications.nombreContiene(filtro.nombre()))
+                .and(ProductoSpecifications.precioDesde(filtro.precioMin()))
+                .and(ProductoSpecifications.precioHasta(filtro.precioMax()))
+                .and(ProductoSpecifications.soloConStock(filtro.soloConStock()))
                 .and(ProductoSpecifications.contieneIngrediente(terminoValido));
 
         PageRequest limiteOrdenado = PageRequest.of(0, LIMITE_FILAS, Sort.by(Sort.Direction.DESC, "fechaCreacion"));

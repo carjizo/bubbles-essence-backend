@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -37,8 +38,12 @@ public class ProductoController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
             @RequestParam(required = false) String ingrediente,
             @RequestParam(required = false) String codigo,
-            @RequestParam(required = false) String nombre) {
-        ProductoFiltroDTO filtro = new ProductoFiltroDTO(activo, fechaDesde, fechaHasta, ingrediente, codigo, nombre);
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) BigDecimal precioMin,
+            @RequestParam(required = false) BigDecimal precioMax,
+            @RequestParam(required = false) Boolean soloConStock) {
+        ProductoFiltroDTO filtro = new ProductoFiltroDTO(activo, fechaDesde, fechaHasta, ingrediente,
+                codigo, nombre, precioMin, precioMax, soloConStock);
         return ApiResponse.success(productoService.listar(filtro));
     }
 

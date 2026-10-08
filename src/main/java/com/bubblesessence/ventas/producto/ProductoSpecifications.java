@@ -4,6 +4,7 @@ import com.bubblesessence.ventas.productoingrediente.ProductoIngrediente;
 import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -40,6 +41,28 @@ public class ProductoSpecifications {
         }
         String patron = "%" + nombre.trim().toLowerCase() + "%";
         return (root, query, cb) -> cb.like(cb.lower(root.get("nombre")), patron);
+    }
+
+    public static Specification<Producto> precioDesde(BigDecimal minimo) {
+        if (minimo == null) {
+            return null;
+        }
+        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.<BigDecimal>get("precio"), minimo);
+    }
+
+    public static Specification<Producto> precioHasta(BigDecimal maximo) {
+        if (maximo == null) {
+            return null;
+        }
+        return (root, query, cb) -> cb.lessThanOrEqualTo(root.<BigDecimal>get("precio"), maximo);
+    }
+
+    /** Solo si viene en true; false/null no filtra (no significa "solo sin stock"). */
+    public static Specification<Producto> soloConStock(Boolean soloConStock) {
+        if (soloConStock == null || !soloConStock) {
+            return null;
+        }
+        return (root, query, cb) -> cb.greaterThan(root.<Integer>get("stock"), 0);
     }
 
     public static Specification<Producto> creadoDesde(LocalDate desde) {
