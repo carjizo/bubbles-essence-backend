@@ -10,6 +10,9 @@ import com.bubblesessence.ventas.pedido.dto.*;
 import com.bubblesessence.ventas.producto.Producto;
 import com.bubblesessence.ventas.producto.ProductoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -106,11 +109,21 @@ public class PedidoServiceImpl implements PedidoService {
         return pedidoMapper.toResponseDTO(guardado);
     }
 
+    /** Tope de pedidos por consulta; el front pagina esas filas localmente. */
+    private static final int LIMITE_LISTADO = 100;
+
     @Override
     public List<PedidoResponseDTO> listar(EstadoPedido estado) {
-        List<Pedido> pedidos = estado != null
-                ? pedidoRepository.findAll().stream().filter(p -> p.getEstadoPedido() == estado).toList()
-                : pedidoRepository.findAll();
+        // Más recientes primero. El id desempata pedidos con la misma fecha para
+        // que el orden sea estable entre consultas (si no, dos recargas seguidas
+        // podrían devolver esos pedidos intercambiados).
+        Pageable ultimos = PageRequest.of(0, LIMITE_LISTADO,
+                Sort.by(Sort.Order.desc("fechaPedido"), Sort.Order.desc("id")));
+
+        List<Pedido> pedidos = (estado != null)
+                ? pedidoRepository.findByEstadoPedido(estado, ultimos)
+                : pedidoRepository.findAllBy(ultimos);
+
         return pedidos.stream().map(pedidoMapper::toResponseDTO).toList();
     }
 

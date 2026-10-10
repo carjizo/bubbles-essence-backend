@@ -30,6 +30,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        default_batch_fetch_size: 100
     hibernate:
       # La base de datos ya existe (creada con el script SQL a mano) y usa
       # DOMINIOS personalizados en casi toda columna (tddu_activo, tddu_monto,
